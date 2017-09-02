@@ -1,0 +1,21 @@
+[
+    {
+        "out": "minecraft:stone",
+        "recipe": [
+            "xxx",
+            "x x",
+            "xxx"
+        ],
+        "bind": {
+            "x": "minecraft:dirt"
+        },
+        "comment": "定形レシピのサンプルです"
+    },
+    {
+        "out": "minecraft:dirt",
+        "recipe": [
+            "minecraft:stone"
+        ],
+        "comment": "bindがないと不定形レシピ扱いになります"
+    }
+]
