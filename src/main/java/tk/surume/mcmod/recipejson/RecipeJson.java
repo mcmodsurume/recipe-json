@@ -17,6 +17,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -74,11 +76,26 @@ public class RecipeJson
             }
             // 定形レシピかどうかで別れる
             if (recipe.get("bind") != null) { // 定形レシピ
-                GameRegistry.addRecipe(outItem,
-                    " x ",
-                    "xxx",
-                    " x ",
-                    'x', outItem);
+                List<Object> params = new ArrayList<Object>();
+                JsonArray recipeItems = recipeElement.getAsJsonArray();
+                // レシピ文字列を追加
+                for (int j = 0; j < recipeItems.size(); j++) {
+                    params.add((Object) recipeItems.get(j).getAsString());
+                }
+                // bindを追加
+                JsonObject bindPatternsObject = recipe.get("bind").getAsJsonObject();
+                Set<Map.Entry<String, JsonElement>> bindPatterns = bindPatternsObject.entrySet();
+                for (Map.Entry<String, JsonElement> pattern: bindPatterns) {
+                    params.add((Object) pattern.getKey().charAt(0));
+                    String itemName = pattern.getValue().getAsString();
+                    if(Item.itemRegistry.containsKey(itemName) == false) {
+                        throw new RuntimeException(String.valueOf(i+1)+"番目のレシピのbindの”"+pattern.getKey().charAt(0)+"”に"+
+                            "指定されているアイテム”"+itemName+"”が見つかりませんでした");
+                    }
+                    ItemStack item = new ItemStack(Item.class.cast(Item.itemRegistry.getObject(itemName)));
+                    params.add((Object) item);
+                }
+                GameRegistry.addRecipe(outItem, params.toArray());
             } else { // 不定形レシピ
                 List<Object> params = new ArrayList<Object>();
                 JsonArray recipeItems = recipeElement.getAsJsonArray();
@@ -87,7 +104,7 @@ public class RecipeJson
                     String itemName = recipeItems.get(j).getAsString();
                     if(Item.itemRegistry.containsKey(itemName) == false) {
                         throw new RuntimeException(String.valueOf(i+1)+"番目のレシピの"+String.valueOf(j+1)+"番目に"+
-                            "指定されているアイテム”"+outItemName+"”が見つかりませんでした");
+                            "指定されているアイテム”"+itemName+"”が見つかりませんでした");
                     }
                     item = new ItemStack(Item.class.cast(Item.itemRegistry.getObject(itemName)));
                     params.add((Object) item);
@@ -98,13 +115,13 @@ public class RecipeJson
         reader.close();
 
         System.out.println(Item.itemRegistry.containsKey("minecraft:dirrt"));
-
-        System.out.println("DIRT BLOCK >> "+Blocks.dirt.getUnlocalizedName());
-        GameRegistry.addRecipe(new ItemStack(Items.diamond, 1),
-            " x ",
-            "xxx",
-            " x ",
-            'x', new ItemStack(Item.class.cast(Item.itemRegistry.getObject("minecraft:dirrrt")))
-        );
+        
+                System.out.println("DIRT BLOCK >> "+Blocks.dirt.getUnlocalizedName());
+                GameRegistry.addRecipe(new ItemStack(Items.diamond, 1),
+                    " x ",
+                    "xxx",
+                    " x ",
+                    'x', new ItemStack(Item.class.cast(Item.itemRegistry.getObject("minecraft:dirrrt")))
+                );
     }
 }
