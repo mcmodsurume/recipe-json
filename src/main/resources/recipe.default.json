@@ -14,7 +14,8 @@
     {
         "out": "minecraft:dirt",
         "recipe": [
-            "minecraft:stone"
+            "minecraft:stone",
+            "minecraft:diamond"
         ],
         "comment": "bindがないと不定形レシピ扱いになります"
     }

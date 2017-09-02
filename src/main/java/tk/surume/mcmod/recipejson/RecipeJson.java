@@ -15,6 +15,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -66,11 +68,32 @@ public class RecipeJson
                     "指定されているアイテム”"+outItemName+"”が見つかりませんでした");
             }
             outItem = new ItemStack(Item.class.cast(Item.itemRegistry.getObject(outItemName)));
-            GameRegistry.addRecipe(outItem,
-                " x ",
-                "xxx",
-                " x ",
-                'x', outItem);
+            JsonElement recipeElement = recipe.get("recipe");
+            if(recipeElement == null) {
+                throw new RuntimeException(String.valueOf(i+1)+"番目のレシピの”recipe”が指定されていません");
+            }
+            // 定形レシピかどうかで別れる
+            if (recipe.get("bind") != null) { // 定形レシピ
+                GameRegistry.addRecipe(outItem,
+                    " x ",
+                    "xxx",
+                    " x ",
+                    'x', outItem);
+            } else { // 不定形レシピ
+                List<Object> params = new ArrayList<Object>();
+                JsonArray recipeItems = recipeElement.getAsJsonArray();
+                for (int j = 0; j < recipeItems.size(); j++) {
+                    ItemStack item;
+                    String itemName = recipeItems.get(j).getAsString();
+                    if(Item.itemRegistry.containsKey(itemName) == false) {
+                        throw new RuntimeException(String.valueOf(i+1)+"番目のレシピの"+String.valueOf(j+1)+"番目に"+
+                            "指定されているアイテム”"+outItemName+"”が見つかりませんでした");
+                    }
+                    item = new ItemStack(Item.class.cast(Item.itemRegistry.getObject(itemName)));
+                    params.add((Object) item);
+                }
+                GameRegistry.addShapelessRecipe(outItem, params.toArray());
+            }
         }
         reader.close();
 
