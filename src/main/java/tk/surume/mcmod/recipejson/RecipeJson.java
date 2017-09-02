@@ -113,15 +113,5 @@ public class RecipeJson
             }
         }
         reader.close();
-
-        System.out.println(Item.itemRegistry.containsKey("minecraft:dirrt"));
-        
-                System.out.println("DIRT BLOCK >> "+Blocks.dirt.getUnlocalizedName());
-                GameRegistry.addRecipe(new ItemStack(Items.diamond, 1),
-                    " x ",
-                    "xxx",
-                    " x ",
-                    'x', new ItemStack(Item.class.cast(Item.itemRegistry.getObject("minecraft:dirrrt")))
-                );
     }
 }
