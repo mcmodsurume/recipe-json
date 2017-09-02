@@ -65,11 +65,20 @@ public class RecipeJson
                 throw new RuntimeException(String.valueOf(i+1)+"番目のレシピの”out”が指定されていません");
             }
             String outItemName = outItemElement.getAsString();
+            int outItemDamageValue = 0;
+            int outItemStack = 1;
+            if(outItemName.contains(",")) {
+                outItemDamageValue = Integer.parseInt(outItemName.split(",")[1]);
+                outItemName = outItemName.split(",")[0];
+            }
             if(Item.itemRegistry.containsKey(outItemName) == false) {
                 throw new RuntimeException(String.valueOf(i+1)+"番目のレシピの”out”に"+
                     "指定されているアイテム”"+outItemName+"”が見つかりませんでした");
             }
-            outItem = new ItemStack(Item.class.cast(Item.itemRegistry.getObject(outItemName)));
+            if(recipe.get("stack") != null) {
+                outItemStack = recipe.get("stack").getAsInt();
+            }
+            outItem = new ItemStack(Item.class.cast(Item.itemRegistry.getObject(outItemName)), outItemStack, outItemDamageValue);
             JsonElement recipeElement = recipe.get("recipe");
             if(recipeElement == null) {
                 throw new RuntimeException(String.valueOf(i+1)+"番目のレシピの”recipe”が指定されていません");
@@ -88,11 +97,16 @@ public class RecipeJson
                 for (Map.Entry<String, JsonElement> pattern: bindPatterns) {
                     params.add((Object) pattern.getKey().charAt(0));
                     String itemName = pattern.getValue().getAsString();
+                    int itemDamageValue = 0;
+                    if(itemName.contains(",")) {
+                        itemDamageValue = Integer.parseInt(itemName.split(",")[1]);
+                        itemName = itemName.split(",")[0];
+                    }
                     if(Item.itemRegistry.containsKey(itemName) == false) {
                         throw new RuntimeException(String.valueOf(i+1)+"番目のレシピのbindの”"+pattern.getKey().charAt(0)+"”に"+
                             "指定されているアイテム”"+itemName+"”が見つかりませんでした");
                     }
-                    ItemStack item = new ItemStack(Item.class.cast(Item.itemRegistry.getObject(itemName)));
+                    ItemStack item = new ItemStack(Item.class.cast(Item.itemRegistry.getObject(itemName)), 1, itemDamageValue);
                     params.add((Object) item);
                 }
                 GameRegistry.addRecipe(outItem, params.toArray());
@@ -102,11 +116,16 @@ public class RecipeJson
                 for (int j = 0; j < recipeItems.size(); j++) {
                     ItemStack item;
                     String itemName = recipeItems.get(j).getAsString();
+                    int itemDamageValue = 0;
+                    if(itemName.contains(",")) {
+                        itemDamageValue = Integer.parseInt(itemName.split(",")[1]);
+                        itemName = itemName.split(",")[0];
+                    }
                     if(Item.itemRegistry.containsKey(itemName) == false) {
                         throw new RuntimeException(String.valueOf(i+1)+"番目のレシピの"+String.valueOf(j+1)+"番目に"+
                             "指定されているアイテム”"+itemName+"”が見つかりませんでした");
                     }
-                    item = new ItemStack(Item.class.cast(Item.itemRegistry.getObject(itemName)));
+                    item = new ItemStack(Item.class.cast(Item.itemRegistry.getObject(itemName)), 1, itemDamageValue);
                     params.add((Object) item);
                 }
                 GameRegistry.addShapelessRecipe(outItem, params.toArray());
